@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="th" data-theme="base">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ติดต่อเรา - หน้าติดต่อสอบถาม</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="kamehameha-flash" id="kameFlash"></div>
+
+    <div class="container contact-container">
+        <!-- Back Button -->
+        <a href="index.html" class="btn-back">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
+            ไม่มีไรถามแค่กดดูเขินกดตรงนี้
+        </a>
+
+        <!-- Contact Card -->
+        <div class="card">
+            <h2>ฟอร์มการติดต่อ (Contact Form)</h2>
+            <p>หากมีข้อสงสัยหรือต้องการติดต่อ สามารถกรอกข้อมูลด้านล่างนี้ได้เลยครับ</p>
+
+            <form id="contactForm" onsubmit="handleContactSubmit(event)">
+                <div class="form-group">
+                    <label for="name">ชื่อ-นามสกุล:</label>
+                    <input type="text" id="name" name="name" placeholder="กรอกชื่อของคุณ" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="email">อีเมล:</label>
+                    <input type="email" id="email" name="email" placeholder="example@email.com" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="message">ข้อความที่ต้องการติดต่อ:</label>
+                    <textarea id="message" name="message" rows="5" placeholder="พิมพ์ข้อความของคุณที่นี่..." required></textarea>
+                </div>
+
+                <button type="submit" class="btn-submit" id="submitBtn">ส่งข้อมูล</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Success Message Modal -->
+    <div id="successModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); backdrop-filter: blur(10px); z-index: 10000; justify-content: center; align-items: center;">
+        <div class="card" style="max-width: 450px; text-align: center; margin: 20px;">
+            <img src="images/dbz-goku.gif" alt="โกคูส่งพลัง" style="width: 100%; border-radius: 8px; margin-bottom: 20px; max-height: 250px; object-fit: cover;">
+            <h3 style="font-family: var(--font-heading); color: var(--theme-primary); margin-bottom: 15px;">KAMEHAMEHA!</h3>
+            <p style="font-size: 1.1rem; margin-bottom: 20px; color: var(--text-main);">ส่งข้อความสำเร็จ! พลังคลื่นเต่าได้นำส่งข้อความของคุณเรียบร้อยแล้ว<br><span style="font-size: 0.9rem; color: var(--text-muted);">(ส่วนจะอ่านหรือไม่อ่านนั่นอีกเรื่องนะครับ 😆)</span></p>
+            <button onclick="closeModal()" class="btn-transform" style="background: var(--theme-primary); color: #000; width: 100%;">ตกลง</button>
+        </div>
+    </div>
+
+    <script>
+        let audioCtx = null;
+
+        function playKamehamehaSound() {
+            try {
+                if (!audioCtx) {
+                    audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                }
+                if (audioCtx.state === 'suspended') {
+                    audioCtx.resume();
+                }
+
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+
+                osc.type = 'sine';
+                // Starts low, charges up, then explodes
+                osc.frequency.setValueAtTime(80, audioCtx.currentTime);
+                osc.frequency.exponentialRampToValueAtTime(1500, audioCtx.currentTime + 1.2);
+
+                gain.gain.setValueAtTime(0.01, audioCtx.currentTime);
+                gain.gain.linearRampToValueAtTime(0.3, audioCtx.currentTime + 0.8);
+                gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 1.5);
+
+                osc.connect(gain);
+                gain.connect(audioCtx.destination);
+
+                osc.start();
+                osc.stop(audioCtx.currentTime + 1.5);
+            } catch (e) {
+                console.warn(e);
+            }
+        }
+
+        function handleContactSubmit(e) {
+            e.preventDefault();
+            
+            const submitBtn = document.getElementById('submitBtn');
+            const kameFlash = document.getElementById('kameFlash');
+            const modal = document.getElementById('successModal');
+            
+            submitBtn.disabled = true;
+            submitBtn.textContent = "กำลังรวบรวมพลังคลื่นเต่า...";
+
+            // 1. Play charging sound
+            playKamehamehaSound();
+
+            // 2. Shake screen during charge
+            document.body.classList.add('screen-shake');
+
+            setTimeout(() => {
+                document.body.classList.remove('screen-shake');
+                
+                // 3. Trigger energy blast flash animation
+                kameFlash.style.animation = 'kamehameha-blast 1.0s ease-out';
+
+                setTimeout(() => {
+                    kameFlash.style.animation = '';
+                    
+                    // 4. Open success modal
+                    modal.style.display = 'flex';
+                    
+                    // Reset form
+                    document.getElementById('contactForm').reset();
+                    submitBtn.disabled = false;
+                    submitBtn.textContent = "ส่งข้อมูล";
+                }, 900);
+
+            }, 1200);
+        }
+
+        function closeModal() {
+            document.getElementById('successModal').style.display = 'none';
+        }
+    </script>
+</body>
+</html>
+
